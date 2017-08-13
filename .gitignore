@@ -1,0 +1,32 @@
+*.class
+
+#package file
+*.war
+*.ear
+#*.jar -- 支付宝的jar得需要,maven的jar在仓库,也不会提交
+
+#kdiff3 ignore
+target/
+
+#eclipse
+.settings/
+.project
+.classpath
+
+#idea
+.idea
+/idea/
+*.ipr
+*.iml
+*.iws
+
+#tam file
+*.log
+*.cache
+*.diff
+*.tmp
+*.path
+
+#sys ignoew
+.DS_Store
+Thumbs.db
