@@ -71,4 +71,13 @@ public class ServerResponse<T> implements Serializable{
     public boolean isSuccess(){
         return this.getStatus() == ResponseCode.SUCCESS.getCode();
     }
+
+    @Override
+    public String toString() {
+        return "ServerResponse{" +
+                "status=" + status +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

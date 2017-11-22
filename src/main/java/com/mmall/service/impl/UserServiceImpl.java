@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.UUID;
 
 /**
@@ -195,5 +194,13 @@ public class UserServiceImpl implements IUserService{
 //        Hasher hasher = Hashing.md5().newHasher();
 //        System.out.println(hasher.putString("bgkp108512", StandardCharsets.UTF_8).hash().toString());
 
+    }
+
+    public UserMapper getUserMapper() {
+        return userMapper;
+    }
+
+    public void setUserMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
     }
 }

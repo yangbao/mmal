@@ -159,7 +159,7 @@
   <select id="checkEmail" parameterType="string" resultType="int">
     select count(1)
     from mmall_user
-    where username = #{email};
+    where email = #{email};
   </select>
   <select id="selectQuestionByUsername" parameterType="string" resultType="string">
     select question
