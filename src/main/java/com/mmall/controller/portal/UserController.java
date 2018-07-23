@@ -45,9 +45,9 @@ public class UserController {
     }
 
     /**
-     * 对用户名和email 开放外部的接口
+     * 对用户名和email 开放外部的接口，在页面注册的时候会用到；注册有校验，为了防止恶意调用。
      * @param validatedString
-     * @param type
+     * @param type，email或者username
      * @return
      */
     @RequestMapping(value = "check_valid.do",method = RequestMethod.POST)
@@ -60,30 +60,32 @@ public class UserController {
     public ServerResponse<User> getUserInfo(HttpSession session){
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if(user == null){
-            ServerResponse.createByErrorMessage("用户未登录,无法获取当前用户的信息");
+           return ServerResponse.createByErrorMessage("用户未登录,无法获取当前用户的信息");
             //TODO 跳转到登录界面
         }
         return ServerResponse.createBySuccess(user);
     }
+    //忘记密码，获取密码提示问题
     @RequestMapping(value = "forget_get_question.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> forgetGetQuestion(String username) {
         return iUserService.selectQuestion(username);
     }
-
+    //校验问题答案是否正确
     @RequestMapping(value = "forget_check_question.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> forgetCheckQuestion(String username, String question, String answer) {
 
         return iUserService.checkForgetAnswer(username,question,answer);
     }
+    //忘记密码中的重置密码
     @RequestMapping(value = "forget_reset_password.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> forgetresetPassword(String username, String newPassword, String tokenString) {
 
         return iUserService.forgetResetPassword(username, newPassword, tokenString);
-
     }
+    //登录状态下的重置密码
     @RequestMapping(value = "reset_password.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> resetPassword(HttpSession session, String username, String oldPassword, String newPassword) {
@@ -95,6 +97,7 @@ public class UserController {
         return iUserService.resetPassword(username, newPassword, user);
 
     }
+    //更新用户信息
     @RequestMapping(value = "update_information.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> changeUserInformation(HttpSession session, User user) {
@@ -104,9 +107,11 @@ public class UserController {
             return ServerResponse.createByErrorMessage("用户未登录");
         }
 
-        //userId,name的值要设置一下防止横向越权(防止ID被变化)
+        //userId,name的值要设置一下防止横向越权(防止ID被变化) - user里面是没有 user id 的
         user.setId(currentUser.getId());
+        //username不能被修改，也要设置上
         user.setUsername(currentUser.getUsername());
+
         ServerResponse<User> response = iUserService.modifyUserInformation(user);
         if (response.isSuccess()) {
             //还要更新到session
@@ -114,6 +119,7 @@ public class UserController {
         }
         return response;
     }
+    //获取登录的用户信息
     @RequestMapping(value = "get_information.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> getUserInformation(HttpSession session) {

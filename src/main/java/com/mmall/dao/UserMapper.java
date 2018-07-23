@@ -17,6 +17,7 @@ public interface UserMapper {
     int updateByPrimaryKey(User record);
 
     int checkUser(String username);
+    //Mybatis 多个参数传递需要用注解， 验证登录的用户名密码
     User selectLogin(@Param("username") String username, @Param("password")String password);
 
     int checkEmail(String email);

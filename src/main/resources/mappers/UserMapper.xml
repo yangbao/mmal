@@ -105,6 +105,7 @@
       </if>
     </trim>
   </insert>
+  <!--选择性的更新-->
   <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.User" >
     update mmall_user
     <set >
@@ -174,7 +175,7 @@
     and answer = #{answer}
     and question = #{question};
   </select>
-
+<!--避免用select * 因为表可能多个人使用而且 也会有扩展。-->
   <select id="selectLogin" parameterType="map" resultMap="BaseResultMap">
     select <include refid="Base_Column_List" /><!--直接用给定的值-->
     from mmall_user
@@ -193,6 +194,7 @@
     where id = #{userId}
     and password = #{password};
   </select>
+  <!--不查是自己的email 有可能不修改 email-->
   <select id="checkEmailByUserId" parameterType="map" resultType="int">
     select cout(1)
     from mmall_user

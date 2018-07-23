@@ -32,26 +32,28 @@ public class UserServiceImpl implements IUserService{
         if (user == null) {
             return ServerResponse.createByErrorMessage("密码错误");
         }
+        user.setPassword(StringUtils.EMPTY);//密码置空
         return ServerResponse.createBySuccess("登录成功",user);
     }
     //TODO 密码输入超过5次,用户名3次, 显示验证码
     @Override
     public ServerResponse<String> register(User user) {
         ServerResponse validResponse = this.validate(user.getUsername(),Const.VALIDATE_USERNAME);
-        if(!validResponse.isSuccess()){
+        //与校验结果相反
+        if(validResponse.isSuccess()){
             return validResponse;
         }
         validResponse = this.validate(user.getEmail(),Const.VALIDATE_EMAIL);
-        if(!validResponse.isSuccess()){
+        if(validResponse.isSuccess()){
             return validResponse;
         }
-        //MD5 加密, user -->set 一个角色 ROLE, 常量接口-->枚举太重
         /*MD5 加密也可以用common包的,或者Guava 的工具类
          DigestUtils.md5Hex(user.getPassword().getBytes());
          user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
          Hasher hasher = Hashing.md5().newHasher();
          hasher.putString(user.getPassword(), StandardCharsets.UTF_8);
         */
+        //MD5 加密, user -->set 一个角色 ROLE, 常量接口-->枚举太重
         user.setRole(Const.Role.ROLE_CUSTOMER);
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));//set 加密后的password
         int count = userMapper.insert(user);
@@ -77,7 +79,7 @@ public class UserServiceImpl implements IUserService{
         }
         return ServerResponse.createBySuccessMessage("校验成功");
     }
-
+    //忘记密码获取提示问题
     @Override
     public ServerResponse<String> selectQuestion(String username) {
 
@@ -91,9 +93,16 @@ public class UserServiceImpl implements IUserService{
         return ServerResponse.createByErrorMessage("找回密码的问题是空的");
     }
 
+    /**
+     * 用 guava 实现 有效期的问题
+     * @param username
+     * @param question
+     * @param answer
+     * @return
+     */
     @Override
     public ServerResponse<String> checkForgetAnswer(String username,String question, String answer) {
-//        用count 效率高, 不比较返回answer
+    //  用count 效率高, 不比较返回answer
         int resultCount = userMapper.checkAnswer(username, question, answer);
         if (resultCount > 0) {
             String forgetToken = UUID.randomUUID().toString();//唯一值
@@ -116,8 +125,9 @@ public class UserServiceImpl implements IUserService{
             return ServerResponse.createByErrorMessage("用户不存在");
         }
         String cachedToken = TokenCache.getFromCache(TokenCache.TOKEN_PREFIX+username);
+        String md5NewPassword = MD5Util.MD5EncodeUtf8(newPassword);
         if (StringUtils.equals(tokenString,cachedToken)){
-            int resultCount = userMapper.updatePassword(username,newPassword);
+            int resultCount = userMapper.updatePassword(username,md5NewPassword);
             if(resultCount > 0){
                 return ServerResponse.createBySuccessMessage("修改成功");
             }
@@ -130,6 +140,14 @@ public class UserServiceImpl implements IUserService{
     @Override
     public ServerResponse<String> resetPassword(String username, String newPassword, User user) {
         //不能只是检测password, 防止横向越权, 应该检测该userID 和 password的对应关系
+        //如果没有这种对应关系，可能会修改别人的密码
+        /*
+         * select cout(1)
+         from mmall_user
+         where id = #{userId}
+         and password = #{password};
+         </select>
+         */
         int resultCount = userMapper.checkUserPassword(user.getId(), MD5Util.MD5EncodeUtf8(user.getPassword()));
         if (resultCount == 0) {
             return ServerResponse.createByErrorMessage("旧密码错误");
@@ -146,7 +164,7 @@ public class UserServiceImpl implements IUserService{
     @Override
     public ServerResponse<User> modifyUserInformation(User user) {
         //username 不能被更改
-        //,email(注意不校验这个当前user对应的email,因为有可能没有改)
+        //email(注意不校验这个当前user对应的email,因为有可能没有改)
         int resultCount = userMapper.checkEmailByUserId(user.getEmail(), user.getId());
         if (resultCount > 0) {
             ServerResponse.createByErrorMessage("email 已经存在,请更换后再尝试");

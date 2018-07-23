@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by u6035457 on 9/17/2017.
+ * 本地的缓存
  */
 public class TokenCache {
 
@@ -23,11 +24,14 @@ public class TokenCache {
             maximumSize(10000).//最大容量
             expireAfterAccess(12,TimeUnit.HOURS).//自动过期
             build(new CacheLoader<String, String>() {
-        @Override //get 没有取到值, 就会调用这个方法取值, 一般从数据库,文件去取值. 变成"null"处置, 防止报错
+        //默认的实现，如果没有取到值，就调用这个结果
+        // get 没有取到值, 就会调用这个方法取值, 一般从数据库,文件去取值. 变成"null"处置, 防止报错
+        @Override
         public String load(String key) throws Exception {
             return "null";
         }
     });
+
     public static  void setToCache(String key,String value){
         if (StringUtils.isBlank(key) || StringUtils.isBlank(value)) {
             logger.error("TokenCache.setFromCache(): 不能设置空值到localCahe");

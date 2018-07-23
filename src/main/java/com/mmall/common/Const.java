@@ -12,7 +12,7 @@ public class Const{
     //枚举太重了(就需要2个值), 所以使用常量接口, 参考有道NOTE
     public interface Role{
         int ROLE_CUSTOMER = 0; //普通用户
-        int ROLE_ADMIN = 1;//管理员
+        int ROLE_ADMIN = 1;   //管理员
     }
     public interface LoginStatus{
         int LOGIN_SUCCESS = 0;
