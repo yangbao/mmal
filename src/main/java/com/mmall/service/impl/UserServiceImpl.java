@@ -213,6 +213,19 @@ public class UserServiceImpl implements IUserService{
 //        System.out.println(hasher.putString("bgkp108512", StandardCharsets.UTF_8).hash().toString());
 
     }
+    //backend
+
+    /**
+     * 校验是否是管理员
+     * @param user
+     * @return
+     */
+    public ServerResponse checkAdminRole(User user){
+        if(user != null && user.getRole().intValue() == Const.Role.ROLE_ADMIN){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
 
     public UserMapper getUserMapper() {
         return userMapper;
