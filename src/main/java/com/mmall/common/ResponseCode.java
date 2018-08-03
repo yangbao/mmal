@@ -15,18 +15,18 @@ public enum ResponseCode {
 
     private final int code;
 
-    private final String description;
+    private final String desc;
 
-    ResponseCode(int code,String description){
+    ResponseCode(int code,String desc){
         this.code = code;
-        this.description = description;
+        this.desc = desc;
     }
 
     public int getCode() {
         return code;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDesc() {
+        return desc;
     }
 }
